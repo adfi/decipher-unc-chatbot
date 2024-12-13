@@ -1,0 +1,7 @@
+pip install langchain==0.1.14
+pip install langchain-experimental==0.0.56
+pip install langchain-community==0.0.31
+pip install fastembed==0.4.2
+pip install chromadb==0.5.23
+pip install pypdf==5.1.0
+gradio==4.25.0

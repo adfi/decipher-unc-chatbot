@@ -1,0 +1,5 @@
+name: unc-chatbot-env
+dependencies:
+  - pip
+  - pip:
+    - -r requirements.txt
