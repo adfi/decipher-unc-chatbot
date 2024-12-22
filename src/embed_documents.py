@@ -1,7 +1,7 @@
 import pickle
 
 from langchain_community.vectorstores import Chroma
-from langchain.embeddings import HuggingFaceBgeEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 
 
 def embed_documents(chunks_path="data/chunks_20241221_180917.pkl"):
