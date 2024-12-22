@@ -36,13 +36,16 @@ chain = (
     | StrOutputParser()
 )
 
+
 def answer_question(question, history):
     retrieved = retriever.invoke(question)
-    sources = [doc.metadata['source'].replace('data/pdfdocs/', '') for doc in retrieved]
+    sources = [doc.metadata["source"].replace("data/pdfdocs/", "") for doc in retrieved]
     result = chain.invoke(question)
     return result, gr.Dropdown(choices=sources, label="Sources")
 
+
 with gr.Blocks() as demo:
+    sources_box = gr.Dropdown(render=False)
     with gr.Row():
         with gr.Column():
             gr.ChatInterface(
