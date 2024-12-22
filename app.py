@@ -2,9 +2,9 @@ from langchain_community.vectorstores import Chroma
 from langchain.embeddings import HuggingFaceBgeEmbeddings
 from langchain.schema.output_parser import StrOutputParser
 from langchain.schema.runnable import RunnablePassthrough
-
 from langchain.prompts import PromptTemplate
 from src.ChatOpenRouter import ChatOpenRouter
+from src.config import OPENROUTER_API_KEY
 
 embedding_model = HuggingFaceBgeEmbeddings(
     model_name="BAAI/bge-base-en"
@@ -17,7 +17,7 @@ vector_store = Chroma(
 )
 retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 3})
 
-llm = ChatOpenRouter(model_name="meta-llama/llama-3.3-70b-instruct")
+llm = ChatOpenRouter(openai_api_key=OPENROUTER_API_KEY,model_name="meta-llama/llama-3.3-70b-instruct")
 
 prompt = PromptTemplate.from_template(
 """
