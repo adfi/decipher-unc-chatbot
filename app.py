@@ -1,5 +1,6 @@
+import gradio as gr
 from langchain_community.vectorstores import Chroma
-from langchain.embeddings import HuggingFaceBgeEmbeddings
+from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain.schema.output_parser import StrOutputParser
 from langchain.schema.runnable import RunnablePassthrough
 from langchain.prompts import PromptTemplate
@@ -11,7 +12,7 @@ embedding_model = HuggingFaceBgeEmbeddings(model_name="BAAI/bge-base-en")
 vector_store = Chroma(
     collection_name="example_collection",
     embedding_function=embedding_model,
-    persist_directory="./chroma_20241212_180917",
+    persist_directory="data/chroma_20241212_180917",
 )
 retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 3})
 
@@ -34,3 +35,27 @@ chain = (
     | llm
     | StrOutputParser()
 )
+
+def answer_question(question, history):
+    retrieved = retriever.invoke(question)
+    sources = [doc.metadata['source'].replace('data/pdfdocs/', '') for doc in retrieved]
+    result = chain.invoke(question)
+    return result, gr.Dropdown(choices=sources, label="Sources")
+
+with gr.Blocks() as demo:
+    with gr.Row():
+        with gr.Column():
+            gr.ChatInterface(
+                answer_question,
+                additional_outputs=[sources_box],
+                type="messages",
+                title="Question Answering Assistant",
+                description="Ask a question and get a concise answer based on the retrieved context.",
+            )
+        with gr.Column():
+            gr.Markdown("<center><h1>Sources</h1></center>")
+            sources_box.render()
+
+
+if __name__ == "__main__":
+    demo.launch()
