@@ -4,7 +4,7 @@ from ChatOpenRouter import ChatOpenRouter
 from langchain.schema.output_parser import StrOutputParser
 from langchain.schema.runnable import RunnablePassthrough
 from langchain.prompts import PromptTemplate
-from config import OPENROUTER_API_KEY
+from src.secrets import OPENROUTER_API_KEY
 
 def generate_questions():
     # Read the pickle file containing the list of Documents

@@ -4,7 +4,7 @@ from langchain.schema.output_parser import StrOutputParser
 from langchain.schema.runnable import RunnablePassthrough
 from langchain.prompts import PromptTemplate
 from src.ChatOpenRouter import ChatOpenRouter
-from src.config import OPENROUTER_API_KEY
+from src.secrets import OPENROUTER_API_KEY
 
 embedding_model = HuggingFaceBgeEmbeddings(
     model_name="BAAI/bge-base-en"
