@@ -36,15 +36,17 @@ chain = (
     | StrOutputParser()
 )
 
-retrieved_content = []
+retrieved_content = {}
 
 def answer_question(question, history):
+    global retrieved_content
+    
     retrieved = retriever.invoke(question)
     sources = [doc.metadata["source"].replace("data/pdfdocs/", "") for doc in retrieved]
-    retrieved_content = [doc.page_content for doc in retrieved]
+    retrieved_content = {source:doc.page_content for doc,source in zip(retrieved, sources)}
     # result = chain.invoke(question)
     result = "Hello World"
-    return result, gr.Dropdown(label="Sources", choices=sources, value=sources[0], interactive=True), retrieved_content[0]
+    return result, gr.Dropdown(label="Sources", choices=sources, value=sources[0], interactive=True), retrieved[0].page_content
 
 
 with gr.Blocks() as demo:
@@ -63,6 +65,11 @@ with gr.Blocks() as demo:
             gr.Markdown("<center><h1>Sources</h1></center>")
             sources_box.render()
             page_content_box.render()
+            
+            def update_page_content(source):
+                return retrieved_content[source]
+
+            sources_box.change(fn=update_page_content, inputs=sources_box, outputs=page_content_box)
 
 
 if __name__ == "__main__":
