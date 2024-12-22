@@ -36,21 +36,25 @@ chain = (
     | StrOutputParser()
 )
 
+retrieved_content = []
 
 def answer_question(question, history):
     retrieved = retriever.invoke(question)
     sources = [doc.metadata["source"].replace("data/pdfdocs/", "") for doc in retrieved]
-    result = chain.invoke(question)
-    return result, gr.Dropdown(choices=sources, label="Sources")
+    retrieved_content = [doc.page_content for doc in retrieved]
+    # result = chain.invoke(question)
+    result = "Hello World"
+    return result, gr.Dropdown(label="Sources", choices=sources, value=sources[0], interactive=True), retrieved_content[0]
 
 
 with gr.Blocks() as demo:
-    sources_box = gr.Dropdown(render=False)
+    sources_box = gr.Dropdown(label="Sources", render=False)
+    page_content_box = gr.Markdown(render=False)
     with gr.Row():
         with gr.Column():
             gr.ChatInterface(
                 answer_question,
-                additional_outputs=[sources_box],
+                additional_outputs=[sources_box, page_content_box],
                 type="messages",
                 title="Question Answering Assistant",
                 description="Ask a question and get a concise answer based on the retrieved context.",
@@ -58,6 +62,7 @@ with gr.Blocks() as demo:
         with gr.Column():
             gr.Markdown("<center><h1>Sources</h1></center>")
             sources_box.render()
+            page_content_box.render()
 
 
 if __name__ == "__main__":
