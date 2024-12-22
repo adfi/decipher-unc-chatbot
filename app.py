@@ -1,26 +1,23 @@
-import pickle
 from langchain_community.vectorstores import Chroma
-from langchain_community.chat_models import ChatOllama
-from langchain_community.embeddings import FastEmbedEmbeddings
+from langchain.embeddings import HuggingFaceBgeEmbeddings
 from langchain.schema.output_parser import StrOutputParser
 from langchain.schema.runnable import RunnablePassthrough
-from langchain.vectorstores.utils import filter_complex_metadata
-from langchain_community.document_loaders import PyPDFDirectoryLoader
+
 from langchain.prompts import PromptTemplate
+from src.ChatOpenRouter import ChatOpenRouter
 
-print("loading docs")
-chunks = PyPDFDirectoryLoader("data/pdfdocs/").load_and_split()
-chunks = filter_complex_metadata(chunks)
-with open("chunks.pkl", 'wb') as f:
-    pickle.dump(chunks, f)
-print("embedding docs")
+embedding_model = HuggingFaceBgeEmbeddings(
+    model_name="BAAI/bge-base-en"
+)
 
-vector_store = Chroma.from_documents(documents=chunks, embedding=FastEmbedEmbeddings())
+vector_store = Chroma(
+    collection_name="example_collection",
+    embedding_function=embedding_model,
+    persist_directory="./chroma_20241212_180917",  
+)
 retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 3})
 
-print("initialising model")
-
-llm = ChatOllama(model="mistral")
+llm = ChatOpenRouter(model_name="meta-llama/llama-3.3-70b-instruct")
 
 prompt = PromptTemplate.from_template(
 """
@@ -31,14 +28,8 @@ Answer: [/INST]
 """
 )
 
-print("creating chain")
-
 chain = ({"context": retriever, "question": RunnablePassthrough()}
                       | prompt
                       | llm
                       | StrOutputParser())
 
-print("generating answer")
-
-answer = chain.invoke("What is the 1-in-20 peak demand?")
-print(answer)
